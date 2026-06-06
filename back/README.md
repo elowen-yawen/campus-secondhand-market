@@ -120,7 +120,20 @@ back/
 - GET /api/health
   - 说明：服务健康状态
 
-## 运行方式（规划）
+## 运行方式
+
+- Linux / macOS：`bash start.sh`
+- Windows：双击 `start.bat` 或在命令行中执行 `start.bat`
+
+启动脚本会自动完成以下步骤：
+
+1. 检测 Python 3 环境
+2. 创建虚拟环境（`.venv`）
+3. 安装依赖（`requirements.txt`）
+4. 生成 `.env`（从 `.env.example` 复制，首次启动时）
+5. 启动服务（`python -m src.main`）
+
+手动启动（如需跳过脚本）：
 
 - 创建虚拟环境并安装依赖（Flask、SQLModel、python-dotenv 等）
 - 设置环境变量：
