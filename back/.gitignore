@@ -7,3 +7,6 @@ __pycache__/
 
 # 数据库
 *.db
+
+# 上传的文件
+uploads/
