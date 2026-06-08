@@ -21,24 +21,28 @@ export function deleteUser(id) {
 }
 
 export function uploadAvatar(filePath) {
-	return new Promise((resolve, reject) => {
-		uni.uploadFile({
-			url: 'http://127.0.0.1:5000/api/user/avatar/upload',
-			filePath,
-			name: 'file',
-			success(res) {
-				try {
-					const body = JSON.parse(res.data)
-					if (body.code === 0) {
-						resolve(resolveImageUrl(body.data.url))
-					} else {
-						reject(body)
-					}
-				} catch (e) {
-					reject(res)
-				}
-			},
-			fail: reject
-		})
-	})
+    const token = uni.getStorageSync('token')
+    return new Promise((resolve, reject) => {
+        uni.uploadFile({
+            url: 'http://127.0.0.1:5000/api/user/avatar/upload',
+            filePath: filePath,
+            name: 'file',
+            header: {
+                'Authorization': 'Bearer ' + (token || '')
+            },
+            success(res) {
+                try {
+                    const body = JSON.parse(res.data)
+                    if (body.code === 0) {
+                        resolve(resolveImageUrl(body.data.url))
+                    } else {
+                        reject(body)
+                    }
+                } catch (e) {
+                    reject(res)
+                }
+            },
+            fail: reject
+        })
+    })
 }
