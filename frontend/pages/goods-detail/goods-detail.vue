@@ -195,11 +195,19 @@
 					uni.showToast({ title: '请先登录', icon: 'none' })
 					return
 				}
+				// 防止与自己聊天
+				if (String(user.id) === String(this.item.userId)) {
+					uni.showToast({ title: '不能联系自己发布的商品', icon: 'none' })
+					return
+				}
 				try {
 					const session = await createSession(user.id, { itemId: Number(this.goodsId) })
-						const partnerId = session.buyerId === user.id ? session.sellerId : session.buyerId
-						uni.navigateTo({ url: '/pages/chat/chat?id=' + session.id + '&partnerId=' + (partnerId || 0) + '&name=' + encodeURIComponent(session.partnerName || '') + '&avatar=' + encodeURIComponent(session.partnerAvatar || '') })				} catch (e) {
-					uni.navigateTo({ url: '/pages/chat/chat?id=' + this.goodsId })
+					const partnerId = session.user1Id === user.id ? session.user2Id : session.user1Id
+					uni.navigateTo({ 
+						url: `/pages/chat/chat?id=${session.id}&partnerId=${partnerId || 0}&name=${encodeURIComponent(this.sellerInfo.nickname || this.sellerInfo.username || '')}&avatar=${encodeURIComponent(this.sellerInfo.avatar || '')}` 
+					})
+				} catch (e) {
+					console.error('Create session failed:', e)
 				}
 			},
 			handleBuy() {
