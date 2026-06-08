@@ -25,8 +25,7 @@
 </template>
 
 <script>
-	const BASE_URL = 'http://127.0.0.1:5000'
-
+	import { BASE_URL, get } from '@/api/index.js'
 	import { getMySellOrders, getMyBuyOrders } from '@/api/order.js'
 
 	export default {
@@ -71,15 +70,12 @@
 					// 聊天未读
 					let chatUnread = 0
 					try {
-						const res = await uni.request({
-							url: BASE_URL + '/api/chat/sessions?userId=' + user.id + '&pageSize=50',
-							method: 'GET',
-							timeout: 5000
+						const res = await get('/api/chat/sessions', { 
+							userId: user.id, 
+							pageSize: 50 
 						})
-						if (res.statusCode === 200 && res.data && res.data.code === 200) {
-							const list = (res.data.data && res.data.data.records) || res.data.data || []
-							chatUnread = list.reduce((sum, s) => sum + (s.unreadCount || 0), 0)
-						}
+						const list = (res && res.records) || res || []
+						chatUnread = list.reduce((sum, s) => sum + (s.unreadCount || 0), 0)
 					} catch (e) {}
 
 					// 通知未读

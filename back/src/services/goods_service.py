@@ -168,7 +168,7 @@ def _goods_to_card(goods: Goods) -> dict:
         "coverUrl": goods.cover_url,
         "campus": goods.campus,
         "status": goods.status,
-        "sellerId": goods.seller_id,
+        "userId": goods.seller_id,
         "createdAt": goods.created_at.isoformat() if goods.created_at else "",
     }
 
@@ -183,7 +183,7 @@ def _goods_to_detail(goods: Goods, image_urls: list[str]) -> dict:
         "price": str(goods.price),
         "coverUrl": goods.cover_url,
         "imageUrls": image_urls,
-        "sellerId": goods.seller_id,
+        "userId": goods.seller_id,
         "categoryId": goods.category_id,
         "campus": goods.campus,
         "conditionLevel": goods.condition_level,

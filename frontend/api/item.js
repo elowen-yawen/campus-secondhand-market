@@ -1,6 +1,4 @@
-import { get, post, put, MOCK, resolveImageUrl } from './index'
-
-const BASE_URL = 'http://127.0.0.1:5000'
+import { get, post, put, MOCK, resolveImageUrl, uploadFile } from './index'
 
 export function getCategories() {
   return get('/api/categories')
@@ -35,32 +33,5 @@ export function onlineItem(id, userId) {
 }
 
 export function uploadImage(filePath) {
-    const token = uni.getStorageSync('token')
-    return new Promise((resolve, reject) => {
-        uni.uploadFile({
-            url: BASE_URL + '/api/items/images/upload',
-            filePath: filePath,
-            name: 'file',
-            header: {
-                'Authorization': 'Bearer ' + (token || '')
-            },
-            success(res) {
-                try {
-                    const data = JSON.parse(res.data)
-                    if (data.code === 0) {
-                        resolve(data.data.url)
-                    } else {
-                        uni.showToast({ title: data.message || '上传失败', icon: 'none' })
-                        reject(data)
-                    }
-                } catch (e) {
-                    reject(e)
-                }
-            },
-            fail(err) {
-                uni.showToast({ title: '网络错误', icon: 'none' })
-                reject(err)
-            }
-        })
-    })
+    return uploadFile('/api/items/images/upload', filePath, 'file').then(res => res.url)
 }

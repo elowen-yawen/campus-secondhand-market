@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:5000'
+export const BASE_URL = 'http://127.0.0.1:5000'
 const TIMEOUT = 10000
 
 export function resolveImageUrl(url) {
@@ -390,6 +390,13 @@ function getMockResponse(method, url, data) {
 	return null
 }
 
+// 处理登录过期
+function handleAuthExpired() {
+	uni.removeStorageSync('token')
+	uni.removeStorageSync('user')
+	uni.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+}
+
 function request(method, url, data) {
 	// Mock 模式
 	if (MOCK) {
@@ -418,10 +425,24 @@ function request(method, url, data) {
 					const body = res.data
 					if (body.code === 0) {
 						resolve(body.data)
+					} else if (body.code === 401) {
+						// Token过期或未登录
+						handleAuthExpired()
+						setTimeout(() => {
+							uni.navigateTo({ url: '/pages/login/login' })
+						}, 1500)
+						reject(body)
 					} else {
 						uni.showToast({ title: body.message || '请求失败', icon: 'none' })
 						reject(body)
 					}
+				} else if (res.statusCode === 401) {
+					// HTTP 401 未授权
+					handleAuthExpired()
+					setTimeout(() => {
+						uni.navigateTo({ url: '/pages/login/login' })
+					}, 1500)
+					reject(res)
 				} else {
 					uni.showToast({ title: '服务器错误 ' + res.statusCode, icon: 'none' })
 					reject(res)
@@ -449,4 +470,44 @@ export function put(url, data) {
 
 export function del(url, data) {
 	return request('DELETE', url, data)
+}
+
+// 统一文件上传函数
+export function uploadFile(url, filePath, name = 'file', baseUrl = BASE_URL) {
+	return new Promise((resolve, reject) => {
+		const token = uni.getStorageSync('token')
+		uni.uploadFile({
+			url: baseUrl + url,
+			filePath: filePath,
+			name: name,
+			header: {
+				'Authorization': 'Bearer ' + (token || '')
+			},
+			success(res) {
+				try {
+					const data = JSON.parse(res.data)
+					if (data.code === 0 || data.code === 200) {
+						resolve(data.data)
+					} else if (data.code === 401) {
+						// Token过期
+						handleAuthExpired()
+						setTimeout(() => {
+							uni.navigateTo({ url: '/pages/login/login' })
+						}, 1500)
+						reject(data)
+					} else {
+						uni.showToast({ title: data.message || '上传失败', icon: 'none' })
+						reject(data)
+					}
+				} catch (e) {
+					uni.showToast({ title: '解析响应失败', icon: 'none' })
+					reject(e)
+				}
+			},
+			fail(err) {
+				uni.showToast({ title: '网络错误', icon: 'none' })
+				reject(err)
+			}
+		})
+	})
 }

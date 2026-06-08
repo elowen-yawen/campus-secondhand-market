@@ -49,7 +49,19 @@ def create_app() -> Flask:
     def health_check():
         """健康检查。"""
 
-        return jsonify({"code": 0, "message": "success", "data": {"status": "ok"}})
+        return jsonify({"code": 0, "message": "success", "data": {"status": "ok", "service": "Campus Secondhand Market API"}})
+
+    @app.route("/")
+    def index():
+        """根路由。"""
+        return jsonify({
+            "code": 0, 
+            "message": "Campus Secondhand Market API is running", 
+            "data": {
+                "health_check": "/api/health",
+                "api_docs": "/API.md (in repository)"
+            }
+        })
 
     return app
 
