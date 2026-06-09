@@ -2,7 +2,7 @@
 	<view class="login-page">
 		<!-- 顶部装饰区 -->
 		<view class="header-section">
-			<text class="app-name">闲鸭蛋</text>
+			<text class="app-name">校园闲置宝</text>
 			<text class="app-slogan">让闲置流动起来</text>
 		</view>
 

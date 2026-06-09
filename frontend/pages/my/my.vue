@@ -27,7 +27,7 @@
 				</view>
 				<view class="sidebar-item" @click="onSidebarClick('关于')">
 					<text class="si-icon">ℹ️</text>
-					<text class="si-text">关于闲鸭蛋</text>
+					<text class="si-text">关于校园闲置宝</text>
 					<text class="si-arrow">›</text>
 				</view>
 			</view>
