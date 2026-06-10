@@ -7,7 +7,7 @@ from typing import Optional
 from sqlmodel import Session, select
 
 from ..db import engine
-from ..models import Wanted, WantedImage
+from ..models import Wanted, WantedImage, User
 
 
 def create(data: dict) -> dict:
@@ -37,7 +37,7 @@ def create(data: dict) -> dict:
             session.add(img)
         session.commit()
 
-        return _wanted_to_detail(wanted, image_urls)
+        return _wanted_to_detail(wanted, image_urls, session)
 
 
 def list_wanted(
@@ -57,7 +57,7 @@ def list_wanted(
             stmt = stmt.where(Wanted.status == status)
         stmt = stmt.order_by(Wanted.created_at.desc())
         items = list(session.exec(stmt).all())
-        return [_wanted_to_card(w) for w in items]
+        return [_wanted_to_card(w, session) for w in items]
 
 
 def get_by_id(wanted_id: int) -> dict:
@@ -70,7 +70,7 @@ def get_by_id(wanted_id: int) -> dict:
         images = session.exec(
             select(WantedImage).where(WantedImage.wanted_id == wanted_id)
         ).all()
-        return _wanted_to_detail(wanted, [img.image_url for img in images])
+        return _wanted_to_detail(wanted, [img.image_url for img in images], session)
 
 
 def update_wanted(wanted_id: int, data: dict) -> None:
@@ -115,7 +115,7 @@ def my_wanted(user_id: int) -> list[dict]:
         items = session.exec(
             select(Wanted).where(Wanted.user_id == user_id).order_by(Wanted.created_at.desc())
         ).all()
-        return [_wanted_to_card(w) for w in items]
+        return [_wanted_to_card(w, session) for w in items]
 
 
 def close_wanted(wanted_id: int, user_id: int) -> None:
@@ -132,8 +132,22 @@ def close_wanted(wanted_id: int, user_id: int) -> None:
         session.commit()
 
 
-def _wanted_to_card(wanted: Wanted) -> dict:
+def _get_user_info(session: Session, user_id: int) -> dict:
+    """获取用户信息（昵称、用户名、头像）。"""
+    user = session.get(User, user_id)
+    if user:
+        return {
+            "nickname": user.nickname or "",
+            "username": user.username or "",
+            "avatar": user.avatar or "",
+        }
+    return {"nickname": "", "username": "", "avatar": ""}
+
+
+def _wanted_to_card(wanted: Wanted, session: Session = None) -> dict:
     """求购转卡片视图。"""
+
+    user_info = _get_user_info(session, wanted.user_id) if session else {}
 
     return {
         "id": wanted.id,
@@ -141,14 +155,19 @@ def _wanted_to_card(wanted: Wanted) -> dict:
         "budgetMin": str(wanted.budget_min),
         "budgetMax": str(wanted.budget_max),
         "campus": wanted.campus,
+        "conditionLevel": wanted.condition_level,
+        "categoryId": wanted.category_id,
         "status": wanted.status,
         "userId": wanted.user_id,
         "createdAt": wanted.created_at.isoformat() if wanted.created_at else "",
+        **user_info,
     }
 
 
-def _wanted_to_detail(wanted: Wanted, image_urls: list[str]) -> dict:
+def _wanted_to_detail(wanted: Wanted, image_urls: list[str], session: Session = None) -> dict:
     """求购转详情视图。"""
+
+    user_info = _get_user_info(session, wanted.user_id) if session else {}
 
     return {
         "id": wanted.id,
@@ -164,4 +183,5 @@ def _wanted_to_detail(wanted: Wanted, image_urls: list[str]) -> dict:
         "userId": wanted.user_id,
         "createdAt": wanted.created_at.isoformat() if wanted.created_at else "",
         "updatedAt": wanted.updated_at.isoformat() if wanted.updated_at else "",
+        **user_info,
     }
