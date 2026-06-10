@@ -125,6 +125,7 @@ import { resolveImageUrl } from '@/api/index.js'
 import { getUserItems } from '@/api/item.js'
 
 function parseMessage(m, currentUserId) {
+	const ts = m.createdAt ? new Date(m.createdAt).getTime() : Date.now()
 	const isImage = m.messageType === 'IMAGE'
 	if (isImage) {
 		return {
@@ -132,7 +133,7 @@ function parseMessage(m, currentUserId) {
 			fromMe: m.senderId === currentUserId,
 			type: 'image',
 			content: resolveImageUrl(m.content),
-			time: new Date(m.createTime).getTime(),
+			time: ts,
 			showTime: false
 		}
 	}
@@ -146,7 +147,7 @@ function parseMessage(m, currentUserId) {
 				type: 'product',
 				content: m.content,
 				product: obj,
-				time: new Date(m.createTime).getTime(),
+				time: ts,
 				showTime: false
 			}
 		}
@@ -156,7 +157,7 @@ function parseMessage(m, currentUserId) {
 		fromMe: m.senderId === currentUserId,
 		type: 'text',
 		content: m.content,
-		time: new Date(m.createTime).getTime(),
+		time: ts,
 		showTime: false
 	}
 }
@@ -399,12 +400,15 @@ export default {
 
 		formatTime(ts) {
 			const d = new Date(ts), now = new Date()
+			// 转换为北京时间 (UTC+8)
+			const local = new Date(d.getTime() + 8 * 60 * 60 * 1000)
+			const nowLocal = new Date(now.getTime() + 8 * 60 * 60 * 1000)
 			const pad = n => String(n).padStart(2, '0')
-			const hm = pad(d.getHours()) + ':' + pad(d.getMinutes())
-			if (d.toDateString() === now.toDateString()) return '今天 ' + hm
-			const y = new Date(now); y.setDate(now.getDate() - 1)
-			if (d.toDateString() === y.toDateString()) return '昨天 ' + hm
-			return (d.getMonth()+1) + '/' + d.getDate() + ' ' + hm
+			const hm = pad(local.getUTCHours()) + ':' + pad(local.getUTCMinutes())
+			if (local.toDateString() === nowLocal.toDateString()) return '今天 ' + hm
+			const y = new Date(nowLocal); y.setUTCDate(nowLocal.getUTCDate() - 1)
+			if (local.toDateString() === y.toDateString()) return '昨天 ' + hm
+			return (local.getUTCMonth()+1) + '/' + local.getUTCDate() + ' ' + hm
 		},
 
 		scrollToBottom() {

@@ -137,11 +137,11 @@
 						categoryLabel: this.getCategoryLabel(data.categoryId),
 						status: data.status,
 						desc: data.description || '',
-						images: data.images || [],
+						images: data.imageUrls || [],
 						nickname: data.nickname || '',
 						username: data.username || '',
 						avatar: data.avatar || '',
-						time: this.formatTime(data.createTime),
+						time: this.formatTime(data.createdAt),
 						userId: data.userId,
 						isOwner: data.userId === user.id
 					}
