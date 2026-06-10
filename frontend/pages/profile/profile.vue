@@ -178,7 +178,7 @@
 						const list = itemsData.records || itemsData || []
 						this.user.goods = list.map(g => ({
 							id: g.id,
-							image: g.imageUrl || g.coverImage || '',
+							image: resolveImageUrl(g.coverUrl || ''),
 							title: g.title || '',
 							price: g.price || '0.00'
 						}))

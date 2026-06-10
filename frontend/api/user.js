@@ -1,25 +1,48 @@
 import { post, get, put, del, resolveImageUrl, uploadFile } from './index'
 
 export function register(username, password) {
-	return post('/api/user/register', { username, password })
+    return post('/api/user/register', { username, password })
 }
 
 export function login(username, password) {
-	return post('/api/user/login', { username, password })
+    return post('/api/user/login', { username, password })
 }
 
 export function getUserInfo(id) {
-	return get('/api/user/' + id)
+    return get('/api/user/' + id)
 }
 
 export function updateProfile(data) {
-	return put('/api/user/profile', data)
+    return put('/api/user/profile', data)
 }
 
 export function deleteUser(id) {
-	return del('/api/user/' + id)
+    return del('/api/user/' + id)
 }
 
 export function uploadAvatar(filePath) {
-	return uploadFile('/api/user/avatar/upload', filePath, 'file').then(res => resolveImageUrl(res.url))
+    const token = uni.getStorageSync('token')
+    return new Promise((resolve, reject) => {
+        uni.uploadFile({
+            url: 'http://127.0.0.1:5000/api/user/avatar/upload',
+            filePath: filePath,
+            name: 'file',
+            header: {
+                'Authorization': 'Bearer ' + (token || '')
+            },
+            success(res) {
+                try {
+                    const body = JSON.parse(res.data)
+                    if (body.code === 0) {
+                        resolve(resolveImageUrl(body.data.url))
+                    } else {
+                        reject(body)
+                    }
+                } catch (e) {
+                    reject(res)
+                }
+            },
+            fail: reject
+        })
+    })
 }

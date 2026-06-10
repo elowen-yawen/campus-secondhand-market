@@ -70,12 +70,12 @@ def delete_by_id(user_id: int) -> None:
 
 def update_profile(
     user_id: int,
-    password: Optional[str],
-    phone: Optional[str],
-    avatar: Optional[str],
-    nickname: Optional[str],
-    bio: Optional[str],
-    campus: Optional[str],
+    password: Optional[str] = None,
+    phone: Optional[str] = None,
+    avatar: Optional[str] = None,
+    nickname: Optional[str] = None,
+    bio: Optional[str] = None,
+    campus: Optional[str] = None,
 ) -> None:
     """更新用户资料。"""
 

@@ -1,4 +1,4 @@
-import { get, post, put, uploadFile } from './index'
+import { get, post, put, uploadFile, BASE_URL } from './index'
 
 export function createSession(userId, data) {
   return post('/api/chat/sessions?userId=' + userId, data)
@@ -21,6 +21,5 @@ export function markRead(sessionId, userId) {
 }
 
 export function uploadChatImage(filePath) {
-  const chatBaseUrl = 'http://127.0.0.1:8080'
-  return uploadFile('/api/chat/images/upload', filePath, 'file', chatBaseUrl).then(res => res.url)
+  return uploadFile('/api/chat/images/upload', filePath, 'file', BASE_URL).then(res => res.url)
 }

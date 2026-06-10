@@ -113,6 +113,7 @@ def upload_avatar():
     """上传头像。"""
 
     file = request.files.get("file")
+    user_id = g.current_user_id
     if not file or file.filename == "":
         return error("图片文件不能为空")
     ext = os.path.splitext(file.filename)[1] if file.filename else ".png"
@@ -120,6 +121,7 @@ def upload_avatar():
     upload_dir = os.path.join("uploads", "avatar")
     os.makedirs(upload_dir, exist_ok=True)
     file.save(os.path.join(upload_dir, filename))
+    user_service.update_profile(user_id, avatar=f"/uploads/avatar/{filename}")
     return success({"url": f"/uploads/avatar/{filename}"})
 
 
