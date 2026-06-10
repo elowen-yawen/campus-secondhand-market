@@ -10,3 +10,6 @@ __pycache__/
 
 # 上传的文件
 uploads/
+
+# 环境变量配置
+.env
